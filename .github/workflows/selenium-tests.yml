@@ -1,0 +1,35 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  selenium:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - run: npm install
+
+    - name: Install Chromium
+      run: sudo apt-get install -y chromium-browser
+
+    - name: Start server
+      run: npm start &
+    
+    - name: Wait for server
+      run: sleep 3
+
+    - name: Run Selenium Test
+      run: |
+        export CHROME_BIN=/usr/bin/chromium-browser
+        node tests/selenium.test.js
