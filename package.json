@@ -1,0 +1,16 @@
+{
+  "name": "simple-web-app",
+  "version": "1.0.0",
+  "description": "Simple web app served with Node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint public/**/*.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  }
+}
