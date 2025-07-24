@@ -18,18 +18,16 @@ jobs:
       with:
         node-version: 18
 
-    - run: npm install
+    - name: Install dependencies
+      run: npm install
 
-    - name: Install Chromium
-      run: sudo apt-get install -y chromium-browser
-
-    - name: Start server
-      run: npm start &
-    
-    - name: Wait for server
-      run: sleep 3
-
-    - name: Run Selenium Test
+    - name: Install Chromium and Chromedriver
       run: |
-        export CHROME_BIN=/usr/bin/chromium-browser
-        node tests/selenium.test.js
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser chromium-chromedriver
+
+    - name: Set CHROME_BIN
+      run: echo "CHROME_BIN=$(which chromium-browser)" >> $GITHUB_ENV
+
+    - name: Run Selenium tests
+      run: node tests/selenium.test.js
