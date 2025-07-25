@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  webapp:
+    build: ./src                # Make sure Dockerfile is inside ./src and runs your server.js
+    container_name: webapp
+    restart: always
+    expose:
+      - "3000"                  # expose to other containers (nginx)
+    environment:
+      - NODE_ENV=production
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "127.0.0.1:8080:80"    # bind to host's 127.0.0.1 port 8080 (so visit localhost:8080)
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./htpasswd:/etc/nginx/.htpasswd:ro
+    depends_on:
+      - webapp
+
+  git:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    ports:
+      - "3001:3000"     # change host port from 3000 to 3001
+      - "222:22"        # SSH for Git
+    volumes:
+      - ./gitea_data:/data
