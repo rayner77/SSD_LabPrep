@@ -1,25 +1,53 @@
-// Function to validate input against XSS
-function validateInput(input) {
-  // OWASP C5: Validate all inputs
-  // Simple whitelist: allow only letters, numbers, spaces, and a few safe punctuation chars
-  // Adjust regex as needed to your use case
+// Validate input for XSS attack (basic whitelist)
+function validateXSS(input) {
   const pattern = /^[a-zA-Z0-9\s\-_,.!?]*$/;
-
   return pattern.test(input);
 }
 
-document.getElementById('searchForm').addEventListener('submit', (e) => {
-  e.preventDefault(); // prevent form default submission
+// Validate input for SQL Injection attack (detect suspicious SQL keywords / chars)
+function validateSQLInjection(input) {
+  // Simple blacklist (you can expand this list as needed)
+  const blacklist = /(SELECT|INSERT|UPDATE|DELETE|DROP|--|;|'|")/i;
+  return !blacklist.test(input);
+}
 
-  const searchTerm = document.getElementById('searchTerm').value.trim();
+const homePage = document.getElementById('homePage');
+const resultsPage = document.getElementById('resultsPage');
+const output = document.getElementById('output');
+const searchResult = document.getElementById('searchResult');
+const searchForm = document.getElementById('searchForm');
+const searchTermInput = document.getElementById('searchTerm');
+const backButton = document.getElementById('backButton');
 
-  if (!validateInput(searchTerm)) {
-    document.getElementById('output').textContent = 'Invalid input detected! Please use only letters, numbers, spaces, and basic punctuation.';
+searchForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const searchTerm = searchTermInput.value.trim();
+
+  if (!validateXSS(searchTerm)) {
+    output.textContent = 'Invalid input detected: Possible XSS attack! Please use only safe characters.';
+    searchTermInput.value = '';  // Clear input
     return;
   }
 
-  // If valid, simulate a search result or further processing
-  document.getElementById('output').textContent = `Searching for: "${searchTerm}"`;
+  if (!validateSQLInjection(searchTerm)) {
+    output.textContent = 'Invalid input detected: Possible SQL Injection attempt! Please avoid SQL keywords or special characters.';
+    searchTermInput.value = '';  // Clear input
+    return;
+  }
 
-  // TODO: Implement actual search logic here
+  // Input is valid - show results page
+  output.textContent = '';
+  searchTermInput.value = '';
+  homePage.style.display = 'none';
+  resultsPage.style.display = 'block';
+  searchResult.textContent = `You searched for: "${searchTerm}"`;
+});
+
+backButton.addEventListener('click', () => {
+  resultsPage.style.display = 'none';
+  homePage.style.display = 'block';
+  output.textContent = '';
+  searchTermInput.value = '';
+  searchTermInput.focus();
 });
